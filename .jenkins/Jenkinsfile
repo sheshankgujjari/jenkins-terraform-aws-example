@@ -1,0 +1,67 @@
+#!/usr/bin/env groovy
+// def mailRecipients = "sheshankgujjari@hotmail.com"
+def awsRegion = "us-east-1"
+
+
+pipeline {
+    agent any
+    environment {
+        CREDENTIALS = "sheshank-aws-credentials"
+    }
+    stages {
+        stage("Initialize With AWS Credentials") {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    credentialsId: 'sheshank-aws-credentials', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    script {
+                    params.each { k, v -> env[k] = v}
+                    sh "terraform init"
+                    }
+                }
+            }
+        }
+        stage("Initialize") {
+            steps {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    credentialsId: 'sheshank-aws-credentials', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                        script {
+                    params.each { k, v -> env[k] = v}
+                    sh "terraform init"
+                    }
+                }
+            }
+        }
+        stage("Plan") {
+            steps {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    credentialsId: 'sheshank-aws-credentials', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    script {
+                    params.each { k, v -> env[k] = v}
+
+                    sh "terraform plan"
+                    }
+                }
+            }
+        }
+        stage("Apply") {
+            steps {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    credentialsId: 'sheshank-aws-credentials', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    script {
+                    params.each { k, v -> env[k] = v}
+                    sh "terraform apply -auto-approve"
+                    }
+                }
+            }
+        }
+    }
+}
+
